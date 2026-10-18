@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Upload, Check, Video, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Upload, Check, Loader2 } from 'lucide-react';
 import { Project, ProjectCategory } from '@/lib/types';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -26,7 +26,7 @@ export default function UploadModal({ isOpen, onClose, onProjectCreated }: Uploa
   const [price, setPrice] = useState('₹15,00,000');
   const [offerPrice, setOfferPrice] = useState('₹12,80,000');
   const [description, setDescription] = useState('');
-  const [enabled, setEnabled] = useState(true);
+  const [showPrice, setShowPrice] = useState(true);
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const [mediaUrl, setMediaUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -90,7 +90,6 @@ export default function UploadModal({ isOpen, onClose, onProjectCreated }: Uploa
 
         finalMediaUrl = publicUrlData.publicUrl;
       } else if (!finalMediaUrl && filePreview) {
-        // Fallback for immediate preview if Supabase is not configured
         finalMediaUrl = filePreview;
       }
 
@@ -102,7 +101,7 @@ export default function UploadModal({ isOpen, onClose, onProjectCreated }: Uploa
         media_type: mediaType,
         price: price.trim(),
         offer_price: offerPrice.trim(),
-        enabled,
+        show_price: showPrice,
         location: location.trim(),
         description: description.trim(),
         created_at: new Date().toISOString(),
@@ -119,7 +118,7 @@ export default function UploadModal({ isOpen, onClose, onProjectCreated }: Uploa
             media_type: newProject.media_type,
             price: newProject.price,
             offer_price: newProject.offer_price,
-            enabled: newProject.enabled,
+            show_price: newProject.show_price,
             location: newProject.location,
             description: newProject.description,
           })
@@ -311,26 +310,26 @@ export default function UploadModal({ isOpen, onClose, onProjectCreated }: Uploa
             />
           </div>
 
-          {/* Enable Toggle (Customer visibility) */}
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-white/60 dark:bg-black/30 border border-black/10 dark:border-white/10">
+          {/* Show price switch */}
+          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/60 dark:bg-black/30 border border-black/10 dark:border-white/10">
             <div>
               <span className="text-xs sm:text-sm font-medium block">
-                Enable for Customers
+                Show price to customers
               </span>
               <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                When enabled, customers can view this project on the public gallery.
+                When turned off, customers will see a &ldquo;Contact for price&rdquo; WhatsApp button instead of the price.
               </span>
             </div>
             <button
               type="button"
-              onClick={() => setEnabled(!enabled)}
+              onClick={() => setShowPrice(!showPrice)}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
-                enabled ? 'bg-brand-red' : 'bg-neutral-300 dark:bg-neutral-700'
+                showPrice ? 'bg-brand-red' : 'bg-neutral-300 dark:bg-neutral-700'
               }`}
             >
               <div
                 className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                  enabled ? 'translate-x-6' : 'translate-x-0'
+                  showPrice ? 'translate-x-6' : 'translate-x-0'
                 }`}
               />
             </button>

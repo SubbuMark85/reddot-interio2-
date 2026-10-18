@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Project, ProjectCategory } from '@/lib/types';
 import ProjectCard from './ProjectCard';
-import { Search, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 const CATEGORIES: ProjectCategory[] = [
   'All',
@@ -17,7 +17,7 @@ const CATEGORIES: ProjectCategory[] = [
 interface ProjectsGalleryProps {
   projects: Project[];
   isAdmin: boolean;
-  onToggleEnable: (id: string, currentVal: boolean) => void;
+  onToggleShowPrice: (id: string, currentVal: boolean) => void;
   onEdit: (project: Project) => void;
   onDelete: (id: string) => void;
   onOpenUpload: () => void;
@@ -26,7 +26,7 @@ interface ProjectsGalleryProps {
 export default function ProjectsGallery({
   projects,
   isAdmin,
-  onToggleEnable,
+  onToggleShowPrice,
   onEdit,
   onDelete,
   onOpenUpload,
@@ -34,12 +34,9 @@ export default function ProjectsGallery({
   const [activeCategory, setActiveCategory] = useState<ProjectCategory>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter projects based on customer visibility (enabled only for non-admins) + category + search
+  // Every project is visible to customers! Filter solely by category and search.
   const filteredProjects = useMemo(() => {
     return projects.filter((p) => {
-      // If customer, hide disabled projects
-      if (!isAdmin && !p.enabled) return false;
-
       // Category filter
       if (activeCategory !== 'All' && p.category !== activeCategory) return false;
 
@@ -55,7 +52,7 @@ export default function ProjectsGallery({
 
       return true;
     });
-  }, [projects, isAdmin, activeCategory, searchQuery]);
+  }, [projects, activeCategory, searchQuery]);
 
   return (
     <section id="projects" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
@@ -110,7 +107,7 @@ export default function ProjectsGallery({
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 rounded-full bg-brand-red animate-pulse" />
             <p className="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200">
-              <span className="font-semibold text-brand-red">Admin Mode Active:</span> You can view both active and hidden projects. Use each card’s controls to toggle public visibility, edit details, or delete.
+              <span className="font-semibold text-brand-red">Admin Mode Active:</span> All projects are visible to customers. Use the &ldquo;Show price&rdquo; switch on any card to control whether prices or &ldquo;Contact for price&rdquo; is shown to customers.
             </p>
           </div>
           <button
@@ -130,7 +127,7 @@ export default function ProjectsGallery({
               key={project.id}
               project={project}
               isAdmin={isAdmin}
-              onToggleEnable={onToggleEnable}
+              onToggleShowPrice={onToggleShowPrice}
               onEdit={onEdit}
               onDelete={onDelete}
             />

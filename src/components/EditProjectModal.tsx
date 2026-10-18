@@ -33,7 +33,7 @@ export default function EditProjectModal({
   const [offerPrice, setOfferPrice] = useState('');
   const [description, setDescription] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
-  const [enabled, setEnabled] = useState(true);
+  const [showPrice, setShowPrice] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -46,7 +46,7 @@ export default function EditProjectModal({
       setOfferPrice(project.offer_price || '');
       setDescription(project.description || '');
       setMediaUrl(project.media_url);
-      setEnabled(project.enabled);
+      setShowPrice(project.show_price);
     }
   }, [project]);
 
@@ -67,7 +67,7 @@ export default function EditProjectModal({
         offer_price: offerPrice.trim(),
         description: description.trim(),
         media_url: mediaUrl.trim(),
-        enabled,
+        show_price: showPrice,
       };
 
       if (isSupabaseConfigured && supabase) {
@@ -81,7 +81,7 @@ export default function EditProjectModal({
             offer_price: updated.offer_price,
             description: updated.description,
             media_url: updated.media_url,
-            enabled: updated.enabled,
+            show_price: updated.show_price,
           })
           .eq('id', project.id);
 
@@ -108,7 +108,7 @@ export default function EditProjectModal({
               Edit <span className="font-semibold text-brand-red">Project</span>
             </h2>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-              Modify pricing, customer visibility, or media
+              Modify pricing, price visibility, or media
             </p>
           </div>
           <button
@@ -222,25 +222,25 @@ export default function EditProjectModal({
             />
           </div>
 
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-white/60 dark:bg-black/30 border border-black/10 dark:border-white/10">
+          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/60 dark:bg-black/30 border border-black/10 dark:border-white/10">
             <div>
               <span className="text-xs sm:text-sm font-medium block">
-                Enable for Customers
+                Show price to customers
               </span>
               <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                Visible to Hyderabad clients on the public website
+                When turned off, customers will see a &ldquo;Contact for price&rdquo; WhatsApp button instead of the price.
               </span>
             </div>
             <button
               type="button"
-              onClick={() => setEnabled(!enabled)}
+              onClick={() => setShowPrice(!showPrice)}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
-                enabled ? 'bg-brand-red' : 'bg-neutral-300 dark:bg-neutral-700'
+                showPrice ? 'bg-brand-red' : 'bg-neutral-300 dark:bg-neutral-700'
               }`}
             >
               <div
                 className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                  enabled ? 'translate-x-6' : 'translate-x-0'
+                  showPrice ? 'translate-x-6' : 'translate-x-0'
                 }`}
               />
             </button>

@@ -9,7 +9,7 @@ export const INITIAL_PROJECTS: Project[] = [
     media_type: 'image',
     price: '₹28,50,000',
     offer_price: '₹24,90,000',
-    enabled: true,
+    show_price: true,
     location: 'Jubilee Hills, Hyderabad',
     description: 'Custom fluted Italian marble walls, bespoke warm mood lighting, and imported minimal furniture designed for grand entertaining.'
   },
@@ -21,7 +21,7 @@ export const INITIAL_PROJECTS: Project[] = [
     media_type: 'image',
     price: '₹9,80,000',
     offer_price: '₹8,20,000',
-    enabled: true,
+    show_price: true,
     location: 'Financial District, Hyderabad',
     description: 'ElevenLabs-inspired monochrome architectural acoustics, low-profile modular seating, and recessed museum-grade spotlights.'
   },
@@ -33,7 +33,7 @@ export const INITIAL_PROJECTS: Project[] = [
     media_type: 'image',
     price: '₹14,50,000',
     offer_price: '₹12,40,000',
-    enabled: true,
+    show_price: true,
     location: 'Banjara Hills, Hyderabad',
     description: 'Anti-fingerprint matte acrylic shutters, Blum soft-touch hardware, waterfall quartz island with integrated induction cooktop.'
   },
@@ -45,7 +45,7 @@ export const INITIAL_PROJECTS: Project[] = [
     media_type: 'image',
     price: '₹11,00,000',
     offer_price: '₹9,50,000',
-    enabled: true,
+    show_price: true,
     location: 'Gachibowli, Hyderabad',
     description: 'Acoustic suede upholstered headboard wall, tinted fluted glass walk-in wardrobe, and smart ambient twilight lighting.'
   },
@@ -57,7 +57,7 @@ export const INITIAL_PROJECTS: Project[] = [
     media_type: 'image',
     price: '₹34,00,000',
     offer_price: '₹29,00,000',
-    enabled: true,
+    show_price: true,
     location: 'Hitec City, Hyderabad',
     description: 'Biophilic ergonomic workstations, acoustic felt ceiling baffles, and private presentation pod with glass privacy switch.'
   },
@@ -69,7 +69,7 @@ export const INITIAL_PROJECTS: Project[] = [
     media_type: 'image',
     price: '₹42,00,000',
     offer_price: '₹36,50,000',
-    enabled: true,
+    show_price: false,
     location: 'Kokapet, Hyderabad',
     description: 'Triple-height foyer with signature RedDot crimson metal statement stairs, ambient cove fixtures, and automated louvers.'
   },
@@ -81,7 +81,7 @@ export const INITIAL_PROJECTS: Project[] = [
     media_type: 'image',
     price: '₹8,50,000',
     offer_price: '₹7,20,000',
-    enabled: true,
+    show_price: true,
     location: 'Madhapur, Hyderabad',
     description: 'Warm oak wood batten paneling, curved bouclé sofas, hidden storage compartments, and natural micro-cement flooring.'
   },
@@ -93,7 +93,7 @@ export const INITIAL_PROJECTS: Project[] = [
     media_type: 'image',
     price: '₹16,80,000',
     offer_price: '₹14,20,000',
-    enabled: true,
+    show_price: true,
     location: 'Kondapur, Hyderabad',
     description: 'German pull-out larder units, integrated wine chiller, quartz splashbacks, and touchless sensor LED strip illumination.'
   }

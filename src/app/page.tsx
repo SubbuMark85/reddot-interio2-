@@ -14,6 +14,7 @@ import AdminLoginModal from '@/components/AdminLoginModal';
 import UploadModal from '@/components/UploadModal';
 import EditProjectModal from '@/components/EditProjectModal';
 import { Project } from '@/lib/types';
+import { INITIAL_PROJECTS } from '@/lib/initialProjects';
 import {
   supabase,
   isSupabaseConfigured,
@@ -26,38 +27,43 @@ import {
 export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() => {
+    if (typeof window === 'undefined') {
+      return INITIAL_PROJECTS.map((p) => ({
+        ...p,
+        price: p.show_price ? p.price : null,
+        offer_price: p.show_price ? p.offer_price : null,
+      }));
+    }
+    return getStoredProjects(false);
+  });
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch projects from Supabase or fallback store
+  // Non-admins read from projects_public (which returns price as NULL when show_price is false)
   const loadProjects = useCallback(async (currentIsAdmin: boolean) => {
     try {
       if (isSupabaseConfigured && supabase) {
-        let query = supabase.from('projects').select('*').order('created_at', { ascending: false });
+        const tableOrView = currentIsAdmin ? 'projects' : 'projects_public';
+        const { data, error } = await supabase
+          .from(tableOrView)
+          .select('*')
+          .order('created_at', { ascending: false });
 
-        // If not admin, RLS policy will also enforce enabled = true
-        if (!currentIsAdmin) {
-          query = query.eq('enabled', true);
-        }
-
-        const { data, error } = await query;
         if (!error && data && data.length > 0) {
           setProjects(data as Project[]);
           return;
         }
       }
 
-      // Fallback to local storage / seed
-      const localData = getStoredProjects();
+      // Fallback to local storage (simulates projects_public for non-admins)
+      const localData = getStoredProjects(currentIsAdmin);
       setProjects(localData);
     } catch (err) {
       console.error('Error loading projects:', err);
-      setProjects(getStoredProjects());
-    } finally {
-      setIsLoading(false);
+      setProjects(getStoredProjects(currentIsAdmin));
     }
   }, []);
 
@@ -109,24 +115,24 @@ export default function Home() {
     loadProjects(false);
   };
 
-  // Toggle project enable/disable
-  const handleToggleEnable = async (id: string, currentVal: boolean) => {
+  // Toggle show_price instantly
+  const handleToggleShowPrice = async (id: string, currentVal: boolean) => {
     const newVal = !currentVal;
 
     // Update state immediately
-    const updated = projects.map((p) => (p.id === id ? { ...p, enabled: newVal } : p));
+    const updated = projects.map((p) => (p.id === id ? { ...p, show_price: newVal } : p));
     setProjects(updated);
     saveStoredProjects(updated);
 
-    // Sync with Supabase if connected
+    // Sync with Supabase projects table
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase
         .from('projects')
-        .update({ enabled: newVal })
+        .update({ show_price: newVal })
         .eq('id', id);
 
       if (error) {
-        console.error('Supabase toggle error:', error.message);
+        console.error('Supabase update show_price error:', error.message);
       }
     }
   };
@@ -184,11 +190,11 @@ export default function Home() {
         {/* 4. Services Section */}
         <ServicesSection />
 
-        {/* 5. Filterable Projects Gallery with 3D Tilt Cards & Admin Controls */}
+        {/* 5. Filterable Projects Gallery with 3D Tilt Cards & Show Price Switch */}
         <ProjectsGallery
           projects={projects}
           isAdmin={isAdmin}
-          onToggleEnable={handleToggleEnable}
+          onToggleShowPrice={handleToggleShowPrice}
           onEdit={(proj) => setEditingProject(proj)}
           onDelete={handleDelete}
           onOpenUpload={() => setIsUploadModalOpen(true)}
