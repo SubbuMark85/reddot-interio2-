@@ -13,7 +13,8 @@ import Footer from '@/components/Footer';
 import AdminLoginModal from '@/components/AdminLoginModal';
 import UploadModal from '@/components/UploadModal';
 import EditProjectModal from '@/components/EditProjectModal';
-import { Project } from '@/lib/types';
+import VideoPlayerModal from '@/components/VideoPlayerModal';
+import { Project, ProjectVideo } from '@/lib/types';
 import { INITIAL_PROJECTS } from '@/lib/initialProjects';
 import {
   supabase,
@@ -40,9 +41,9 @@ export default function Home() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [videoPlayerProject, setVideoPlayerProject] = useState<Project | null>(null);
 
-  // Fetch projects from Supabase or fallback store
-  // Non-admins read from projects_public (which returns price as NULL when show_price is false)
+  // Fetch projects and their associated videos from Supabase or fallback store
   const loadProjects = useCallback(async (currentIsAdmin: boolean) => {
     try {
       if (isSupabaseConfigured && supabase) {
@@ -53,7 +54,16 @@ export default function Home() {
           .order('created_at', { ascending: false });
 
         if (!error && data && data.length > 0) {
-          setProjects(data as Project[]);
+          // Fetch videos from project_videos table
+          const { data: vidsData } = await supabase.from('project_videos').select('*');
+          const videosList: ProjectVideo[] = (vidsData as ProjectVideo[]) || [];
+
+          const merged = (data as Project[]).map((p) => ({
+            ...p,
+            videos: videosList.filter((v) => v.project_id === p.id),
+          }));
+
+          setProjects(merged);
           return;
         }
       }
@@ -157,7 +167,11 @@ export default function Home() {
 
   // When a new project is created via UploadModal
   const handleProjectCreated = (newProject: Project) => {
-    const updated = [newProject, ...projects];
+    const projectWithVideos: Project = {
+      ...newProject,
+      videos: newProject.videos || [],
+    };
+    const updated = [projectWithVideos, ...projects];
     setProjects(updated);
     saveStoredProjects(updated);
   };
@@ -198,6 +212,7 @@ export default function Home() {
           onEdit={(proj) => setEditingProject(proj)}
           onDelete={handleDelete}
           onOpenUpload={() => setIsUploadModalOpen(true)}
+          onOpenVideos={(proj) => setVideoPlayerProject(proj)}
         />
 
         {/* 6. Why Us Section */}
@@ -230,12 +245,19 @@ export default function Home() {
         onProjectCreated={handleProjectCreated}
       />
 
-      {/* Edit Project Modal */}
+      {/* Edit Project Modal (Includes Project Videos section) */}
       <EditProjectModal
         isOpen={Boolean(editingProject)}
         project={editingProject}
         onClose={() => setEditingProject(null)}
         onProjectUpdated={handleProjectUpdated}
+      />
+
+      {/* Full-screen Video Player Modal */}
+      <VideoPlayerModal
+        isOpen={Boolean(videoPlayerProject)}
+        project={videoPlayerProject}
+        onClose={() => setVideoPlayerProject(null)}
       />
     </div>
   );

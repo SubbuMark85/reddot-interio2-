@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Project } from '@/lib/types';
-import { MessageCircle, MapPin, Eye, EyeOff, Edit3, Trash2, Play, Tag } from 'lucide-react';
+import { MessageCircle, MapPin, EyeOff, Edit3, Trash2, Play, Tag } from 'lucide-react';
 
 interface ProjectCardProps {
   project: Project;
@@ -10,6 +10,7 @@ interface ProjectCardProps {
   onToggleShowPrice?: (id: string, currentVal: boolean) => void;
   onEdit?: (project: Project) => void;
   onDelete?: (id: string) => void;
+  onOpenVideos?: (project: Project) => void;
 }
 
 export default function ProjectCard({
@@ -18,6 +19,7 @@ export default function ProjectCard({
   onToggleShowPrice,
   onEdit,
   onDelete,
+  onOpenVideos,
 }: ProjectCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -62,6 +64,8 @@ export default function ProjectCard({
   );
   const contactForPriceUrl = `https://wa.me/919348923689?text=${contactForPriceMessage}`;
 
+  const videoCount = project.videos?.length || 0;
+
   return (
     <div
       ref={cardRef}
@@ -84,7 +88,7 @@ export default function ProjectCard({
         }}
       />
 
-      {/* Media Container (Image or Video) */}
+      {/* Media Container (Cover Image or Video) */}
       <div className="relative w-full h-72 sm:h-80 overflow-hidden bg-neutral-900">
         {project.media_type === 'video' ? (
           <video
@@ -109,14 +113,19 @@ export default function ProjectCard({
           <span className="px-3 py-1 rounded-full text-[11px] font-medium tracking-wide bg-black/60 backdrop-blur-md text-white border border-white/10">
             {project.category}
           </span>
-          {project.media_type === 'video' && (
-            <span className="p-1.5 rounded-full bg-brand-red text-white" title="Video Project">
-              <Play className="w-3 h-3 fill-current" />
+          {videoCount > 0 && (
+            <span
+              onClick={() => onOpenVideos?.(project)}
+              className="cursor-pointer px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide bg-brand-red text-white flex items-center gap-1 shadow-md hover:bg-brand-redHover transition-colors"
+              title={`${videoCount} Video${videoCount > 1 ? 's' : ''} available`}
+            >
+              <Play className="w-2.5 h-2.5 fill-current" />
+              <span>{videoCount} Video{videoCount > 1 ? 's' : ''}</span>
             </span>
           )}
         </div>
 
-        {/* Admin "Price hidden" Tag (Shown only to admin when show_price is false) */}
+        {/* Admin "Price hidden" Tag */}
         {isAdmin && !project.show_price && (
           <div className="absolute top-4 right-4 z-10">
             <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-neutral-900/90 text-amber-300 border border-amber-400/40 shadow-md flex items-center gap-1 backdrop-blur-md">
@@ -129,7 +138,6 @@ export default function ProjectCard({
         {/* Price / "Contact for price" Overlay on Media */}
         <div className="absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between">
           {project.show_price && (project.offer_price || project.price) ? (
-            /* Show Price & Near/Offer Price */
             <div className="bg-black/75 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-white/10 text-white">
               <span className="text-[10px] uppercase tracking-wider text-white/60 block">Offer Price</span>
               <div className="flex items-baseline gap-2">
@@ -140,7 +148,6 @@ export default function ProjectCard({
               </div>
             </div>
           ) : (
-            /* Price Hidden: Contact for price button */
             <a
               href={contactForPriceUrl}
               target="_blank"
@@ -175,20 +182,32 @@ export default function ProjectCard({
           )}
         </div>
 
-        {/* Customer Actions: Enquire button stays on every card */}
-        <div className="pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-3">
+        {/* Customer Actions: Enquire on WhatsApp + ▶ Videos (N) */}
+        <div className="pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-2.5">
           <a
             href={enquireWhatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-medium bg-[#0d0d0d] text-white dark:bg-white dark:text-[#0d0d0d] hover:bg-brand-red hover:text-white dark:hover:bg-brand-red dark:hover:text-white transition-all shadow-sm active:scale-95"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs sm:text-sm font-medium bg-[#0d0d0d] text-white dark:bg-white dark:text-[#0d0d0d] hover:bg-brand-red hover:text-white dark:hover:bg-brand-red dark:hover:text-white transition-all shadow-sm active:scale-95 text-center"
           >
-            <MessageCircle className="w-4 h-4 text-emerald-400 group-hover:text-white" />
-            <span>Enquire on WhatsApp</span>
+            <MessageCircle className="w-4 h-4 text-emerald-400 group-hover:text-white shrink-0" />
+            <span className="truncate">Enquire on WhatsApp</span>
           </a>
+
+          {/* ▶ Videos (N) button - rendered ONLY when project has at least 1 video */}
+          {videoCount > 0 && (
+            <button
+              onClick={() => onOpenVideos?.(project)}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs sm:text-sm font-medium bg-brand-red/10 hover:bg-brand-red text-brand-red hover:text-white dark:bg-brand-red/20 dark:hover:bg-brand-red dark:text-brand-red dark:hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
+              title={`Watch ${videoCount} video${videoCount > 1 ? 's' : ''} of ${project.name}`}
+            >
+              <Play className="w-3 h-3 fill-current" />
+              <span>Videos ({videoCount})</span>
+            </button>
+          )}
         </div>
 
-        {/* Admin Controls: Show price switch and Delete button */}
+        {/* Admin Controls: Show price switch, Edit and Delete */}
         {isAdmin && (
           <div className="mt-4 pt-3 border-t border-dashed border-black/10 dark:border-white/10 flex items-center justify-between gap-2 bg-neutral-50 dark:bg-neutral-900/80 p-2.5 rounded-2xl">
             {/* Show Price Switch */}
@@ -218,7 +237,7 @@ export default function ProjectCard({
                 <button
                   onClick={() => onEdit(project)}
                   className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                  title="Edit Project"
+                  title="Edit Project & Videos"
                 >
                   <Edit3 className="w-4 h-4" />
                 </button>

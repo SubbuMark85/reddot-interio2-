@@ -11,7 +11,23 @@ export const INITIAL_PROJECTS: Project[] = [
     offer_price: '₹24,90,000',
     show_price: true,
     location: 'Jubilee Hills, Hyderabad',
-    description: 'Custom fluted Italian marble walls, bespoke warm mood lighting, and imported minimal furniture designed for grand entertaining.'
+    description: 'Custom fluted Italian marble walls, bespoke warm mood lighting, and imported minimal furniture designed for grand entertaining.',
+    videos: [
+      {
+        id: 'vid-01-1',
+        project_id: 'rd-01',
+        title: '360° Grand Foyer & Marble Cladding Walkthrough',
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: 'vid-01-2',
+        project_id: 'rd-01',
+        title: 'Ambient Evening Lighting Cinematic Tour',
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        created_at: new Date().toISOString(),
+      },
+    ],
   },
   {
     id: 'rd-02',
@@ -23,7 +39,16 @@ export const INITIAL_PROJECTS: Project[] = [
     offer_price: '₹8,20,000',
     show_price: true,
     location: 'Financial District, Hyderabad',
-    description: 'ElevenLabs-inspired monochrome architectural acoustics, low-profile modular seating, and recessed museum-grade spotlights.'
+    description: 'ElevenLabs-inspired monochrome architectural acoustics, low-profile modular seating, and recessed museum-grade spotlights.',
+    videos: [
+      {
+        id: 'vid-02-1',
+        project_id: 'rd-02',
+        title: 'Living Room Acoustic & Spatial Tour',
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+        created_at: new Date().toISOString(),
+      },
+    ],
   },
   {
     id: 'rd-03',
@@ -35,7 +60,23 @@ export const INITIAL_PROJECTS: Project[] = [
     offer_price: '₹12,40,000',
     show_price: true,
     location: 'Banjara Hills, Hyderabad',
-    description: 'Anti-fingerprint matte acrylic shutters, Blum soft-touch hardware, waterfall quartz island with integrated induction cooktop.'
+    description: 'Anti-fingerprint matte acrylic shutters, Blum soft-touch hardware, waterfall quartz island with integrated induction cooktop.',
+    videos: [
+      {
+        id: 'vid-03-1',
+        project_id: 'rd-03',
+        title: 'Blum Hardware & Servo-Drive Demo',
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: 'vid-03-2',
+        project_id: 'rd-03',
+        title: 'Concealed Pantry & Larder Walkthrough',
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        created_at: new Date().toISOString(),
+      },
+    ],
   },
   {
     id: 'rd-04',
@@ -47,7 +88,16 @@ export const INITIAL_PROJECTS: Project[] = [
     offer_price: '₹9,50,000',
     show_price: true,
     location: 'Gachibowli, Hyderabad',
-    description: 'Acoustic suede upholstered headboard wall, tinted fluted glass walk-in wardrobe, and smart ambient twilight lighting.'
+    description: 'Acoustic suede upholstered headboard wall, tinted fluted glass walk-in wardrobe, and smart ambient twilight lighting.',
+    videos: [
+      {
+        id: 'vid-04-1',
+        project_id: 'rd-04',
+        title: 'Master Suite & Walk-in Wardrobe Tour',
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        created_at: new Date().toISOString(),
+      },
+    ],
   },
   {
     id: 'rd-05',
@@ -59,7 +109,8 @@ export const INITIAL_PROJECTS: Project[] = [
     offer_price: '₹29,00,000',
     show_price: true,
     location: 'Hitec City, Hyderabad',
-    description: 'Biophilic ergonomic workstations, acoustic felt ceiling baffles, and private presentation pod with glass privacy switch.'
+    description: 'Biophilic ergonomic workstations, acoustic felt ceiling baffles, and private presentation pod with glass privacy switch.',
+    videos: [],
   },
   {
     id: 'rd-06',
@@ -71,7 +122,16 @@ export const INITIAL_PROJECTS: Project[] = [
     offer_price: '₹36,50,000',
     show_price: false,
     location: 'Kokapet, Hyderabad',
-    description: 'Triple-height foyer with signature RedDot crimson metal statement stairs, ambient cove fixtures, and automated louvers.'
+    description: 'Triple-height foyer with signature RedDot crimson metal statement stairs, ambient cove fixtures, and automated louvers.',
+    videos: [
+      {
+        id: 'vid-06-1',
+        project_id: 'rd-06',
+        title: 'Triple-Height Foyer Architectural Walkthrough',
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+        created_at: new Date().toISOString(),
+      },
+    ],
   },
   {
     id: 'rd-07',
@@ -83,7 +143,8 @@ export const INITIAL_PROJECTS: Project[] = [
     offer_price: '₹7,20,000',
     show_price: true,
     location: 'Madhapur, Hyderabad',
-    description: 'Warm oak wood batten paneling, curved bouclé sofas, hidden storage compartments, and natural micro-cement flooring.'
+    description: 'Warm oak wood batten paneling, curved bouclé sofas, hidden storage compartments, and natural micro-cement flooring.',
+    videos: [],
   },
   {
     id: 'rd-08',
@@ -95,6 +156,15 @@ export const INITIAL_PROJECTS: Project[] = [
     offer_price: '₹14,20,000',
     show_price: true,
     location: 'Kondapur, Hyderabad',
-    description: 'German pull-out larder units, integrated wine chiller, quartz splashbacks, and touchless sensor LED strip illumination.'
+    description: 'German pull-out larder units, integrated wine chiller, quartz splashbacks, and touchless sensor LED strip illumination.',
+    videos: [
+      {
+        id: 'vid-08-1',
+        project_id: 'rd-08',
+        title: 'Gourmet Island Ergonomics & Smart Lights',
+        video_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        created_at: new Date().toISOString(),
+      },
+    ],
   }
 ];

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { Project } from './types';
+import { Project, ProjectVideo } from './types';
 import { INITIAL_PROJECTS } from './initialProjects';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -17,7 +17,7 @@ export const supabase = isSupabaseConfigured
   : null;
 
 // Local fallback store key for development before connecting Supabase
-const LOCAL_STORAGE_KEY = 'reddot_projects_store_v2';
+const LOCAL_STORAGE_KEY = 'reddot_projects_store_v3';
 const ADMIN_SESSION_KEY = 'reddot_admin_session_v1';
 
 export const getStoredProjects = (isAdmin = false): Project[] => {
@@ -30,10 +30,10 @@ export const getStoredProjects = (isAdmin = false): Project[] => {
       list = INITIAL_PROJECTS;
     } else {
       const parsed = JSON.parse(raw);
-      // Migrate legacy projects if any
       list = parsed.map((item: any) => ({
         ...item,
         show_price: item.show_price !== undefined ? item.show_price : (item.enabled ?? true),
+        videos: Array.isArray(item.videos) ? item.videos : [],
       }));
     }
 
@@ -84,3 +84,142 @@ export const saveStoredAdminSession = (email: string | null) => {
     console.error('Error saving admin session:', err);
   }
 };
+
+// ==========================================
+// Video Management (Database & Storage)
+// ==========================================
+
+export async function fetchProjectVideos(projectId: string): Promise<ProjectVideo[]> {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('project_videos')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: true });
+
+    if (!error && data) {
+      return data as ProjectVideo[];
+    }
+  }
+
+  // Fallback to local storage
+  const stored = getStoredProjects(true);
+  const proj = stored.find((p) => p.id === projectId);
+  return proj?.videos || [];
+}
+
+export async function uploadProjectVideoFile(
+  projectId: string,
+  file: File,
+  title: string
+): Promise<ProjectVideo> {
+  const cleanTitle = title.trim() || file.name.replace(/\.[^/.]+$/, '');
+  const timestamp = Date.now();
+  const fileExt = file.name.split('.').pop() || 'mp4';
+  const filePath = `videos/${projectId}/${timestamp}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+  let finalVideoUrl = '';
+
+  if (isSupabaseConfigured && supabase) {
+    // Upload to Supabase Storage bucket 'portfolio' under videos/<project_id>/
+    const { error: uploadError } = await supabase.storage
+      .from('portfolio')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (uploadError) {
+      throw new Error(`Video upload to Supabase failed: ${uploadError.message}`);
+    }
+
+    const { data: publicData } = supabase.storage
+      .from('portfolio')
+      .getPublicUrl(filePath);
+
+    finalVideoUrl = publicData.publicUrl;
+
+    // Insert into project_videos table
+    const { data, error } = await supabase
+      .from('project_videos')
+      .insert({
+        project_id: projectId,
+        video_url: finalVideoUrl,
+        title: cleanTitle,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to save video record: ${error.message}`);
+    }
+
+    return data as ProjectVideo;
+  }
+
+  // Local fallback: create object URL and save in localStorage
+  finalVideoUrl = URL.createObjectURL(file);
+  const newVideo: ProjectVideo = {
+    id: `vid-${timestamp}`,
+    project_id: projectId,
+    video_url: finalVideoUrl,
+    title: cleanTitle,
+    created_at: new Date().toISOString(),
+  };
+
+  const stored = getStoredProjects(true);
+  const updated = stored.map((p) => {
+    if (p.id === projectId) {
+      return {
+        ...p,
+        videos: [...(p.videos || []), newVideo],
+      };
+    }
+    return p;
+  });
+  saveStoredProjects(updated);
+
+  return newVideo;
+}
+
+export async function deleteProjectVideoRecord(
+  videoId: string,
+  videoUrl: string,
+  projectId: string
+): Promise<void> {
+  if (isSupabaseConfigured && supabase) {
+    // 1. Delete database row
+    const { error: dbError } = await supabase
+      .from('project_videos')
+      .delete()
+      .eq('id', videoId);
+
+    if (dbError) {
+      console.error('Error deleting video row:', dbError);
+    }
+
+    // 2. Remove file from storage bucket 'portfolio'
+    try {
+      const urlParts = videoUrl.split('/portfolio/');
+      if (urlParts.length > 1) {
+        const storagePath = decodeURIComponent(urlParts[1]);
+        await supabase.storage.from('portfolio').remove([storagePath]);
+      }
+    } catch (storageErr) {
+      console.warn('Could not remove video from storage:', storageErr);
+    }
+  }
+
+  // Update local store
+  const stored = getStoredProjects(true);
+  const updated = stored.map((p) => {
+    if (p.id === projectId && p.videos) {
+      return {
+        ...p,
+        videos: p.videos.filter((v) => v.id !== videoId),
+      };
+    }
+    return p;
+  });
+  saveStoredProjects(updated);
+}

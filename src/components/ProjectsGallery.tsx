@@ -21,6 +21,7 @@ interface ProjectsGalleryProps {
   onEdit: (project: Project) => void;
   onDelete: (id: string) => void;
   onOpenUpload: () => void;
+  onOpenVideos: (project: Project) => void;
 }
 
 export default function ProjectsGallery({
@@ -30,6 +31,7 @@ export default function ProjectsGallery({
   onEdit,
   onDelete,
   onOpenUpload,
+  onOpenVideos,
 }: ProjectsGalleryProps) {
   const [activeCategory, setActiveCategory] = useState<ProjectCategory>('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -130,6 +132,7 @@ export default function ProjectsGallery({
               onToggleShowPrice={onToggleShowPrice}
               onEdit={onEdit}
               onDelete={onDelete}
+              onOpenVideos={onOpenVideos}
             />
           ))}
         </div>
